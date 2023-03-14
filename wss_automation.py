@@ -168,30 +168,38 @@ channel_end = 87
 # range of all channels used
 all_channels = list(range(channel_start, channel_end + 1))
 
-# k is the number of channels to turn off at once
-# so if k=1, then we will have singles: [[52], [53], ...]
-# so if k=2, then we will have doubles: [[52, 53], [53, 54], ...]
-# this goes up to channel_end - channel_start, where we will have [[52, ..., 86], [53, ... 87]]
+# # k is the number of channels to turn off at once
+# # so if k=1, then we will have singles: [[52], [53], ...]
+# # so if k=2, then we will have doubles: [[52, 53], [53, 54], ...]
+# # this goes up to channel_end - channel_start, where we will have [[52, ..., 86], [53, ... 87]]
+# URA_list = []
+# for k in range(1, channel_end - channel_start + 1):
+# 	channels_list = [list(range(i, i + k)) for i in range(channel_start, channel_end + 1 - k + 1)]
+# 	for channels in channels_list:
+# 		# create attenuations where only channel index is off (att 99.9)
+# 		attenuations = [0.0] * len(all_channels)
+
+# 		# get an index of which channels to turn off by seeing how the channels in this sublist compare to the total channels looked at
+# 		indices = [channel - channel_start for channel in channels]
+# 		for index in indices:
+# 			attenuations[index] = 99.9
+
+# 		# create URA for these attenuations
+# 		new_URA = get_URA(all_channels, attenuations)
+
+# 		# add to URA list
+# 		URA_list.append(new_URA)
+
+# create URA for these attenuations
+new_URA = get_URA(all_channels, [99.9]*len(all_channels))
+
 URA_list = []
-for k in range(1, channel_end - channel_start + 1):
-	channels_list = [list(range(i, i + k)) for i in range(channel_start, channel_end + 1 - k + 1)]
-	for channels in channels_list:
-		# create attenuations where only channel index is off (att 99.9)
-		attenuations = [0.0] * len(all_channels)
-
-		# get an index of which channels to turn off by seeing how the channels in this sublist compare to the total channels looked at
-		indices = [channel - channel_start for channel in channels]
-		for index in indices:
-			attenuations[index] = 99.9
-
-		# create URA for these attenuations
-		new_URA = get_URA(all_channels, attenuations)
-
-		# add to URA list
-		URA_list.append(new_URA)
+for i in range(0, 100):
+	# add to URA list
+	URA_list.append(new_URA)
 
 # apply each
-reading_arrs = set_URA(URA_list, seconds=5)
+reading_arrs = set_URA(URA_list, seconds=3)
 
 # default
 reset_default()
@@ -201,7 +209,7 @@ file_index = 0
 for i, reading_arr in enumerate(reading_arrs):
 	# save to text file, where column 1 is all the times, and column 2 is all the data points
 	# the header is the URA command used
-	np.savetxt(f'adjacent_channels/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+	np.savetxt(f'off_channels/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
 
 	# increase file index so we dont override file
 	file_index += 1
