@@ -95,10 +95,42 @@ def reset_basic():
 	print(wss.read())
 
 # takes in a list of the URAs to set
+# waits seconds second after command before reading from the DAC
+# returns an array of the times and data collected from the DAC
+def set_URA(URA, seconds=5):
+	'''
+
+	'''
+
+	# set the new URA
+	wss.write(URA)
+	print(wss.read())
+	print(wss.read())
+
+	# apply these attentuations
+	wss.write('RSW')
+	print(wss.read())
+	print(wss.read())
+
+	# print all channels again
+	print(wss.query('RRA?'))
+	print(wss.read())
+	print(wss.read())
+
+	# allow some time to settle
+	time.sleep(seconds)
+
+	# save data and times
+	reading_arr = read(device='Dev1', sample_rate=1e3, acquire_time=2)
+
+	return reading_arr
+
+
+# takes in a list of the URAs to set
 # applies each one in seconds second intervals
 # reads from the DAC each iteration
 # returns an array of the times and data collected from the DAC
-def set_URA(URA_list, seconds=5):
+def set_URAs(URA_list, seconds=5):
 	'''
 
 	'''
@@ -168,6 +200,45 @@ print(wss.read())
 # default channels
 reset_default()
 
+# CHANNEL SIM, TURNING OFF ONE AT A TIME
+
+# define the range of channels we want to look at
+channel_start = 54
+channel_end = 80
+
+# set to basic as this is the starting point
+reset_basic()
+# read this
+reading_arrs = [read(device='Dev1', sample_rate=1e3, acquire_time=2)]
+
+# now turn off even numbers from 54 to (and including) 80
+URA_list = [URA_BASIC]
+for i in range(channel_start, channel_end + 1, 2):
+	# reset each time
+	reset_basic()
+
+	# new URA is turning off only channel i
+	new_URA = change_one_channel(i, 99.9)
+
+	# save command as a comment by combining with basic
+	URA_list.append(URA_BASIC + '\n' + new_URA)
+
+	# apply this command and add to list
+	reading_arrs.append(set_URA(new_URA))
+
+# default
+reset_default()
+
+# save each to a text file, along with the command used
+file_index = 0
+for i, reading_arr in enumerate(reading_arrs):
+	# save to text file, where column 1 is all the times, and column 2 is all the data points
+	# the header is the URA command used
+	np.savetxt(f'Data/channel_sim_off_onebyone/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+
+	# increase file index so we dont override file
+	file_index += 1
+
 # TURN ON ALL CHANNELS
 
 # define the range of channels we want to look at
@@ -179,12 +250,12 @@ new_URA = toggle_all(True, channel_start, channel_end)
 
 # creates a list of this command but repeated
 URA_list = []
-for i in range(0, 100):
+for i in range(0, 10):
 	# add to URA list
 	URA_list.append(new_URA)
 
 # apply each
-reading_arrs = set_URA(URA_list, seconds=3)
+reading_arrs = set_URAs(URA_list, seconds=3)
 
 # default
 reset_default()
@@ -229,7 +300,7 @@ for k in range(2, channel_end - channel_start):
 	URA_list.append(turn_on_every_k(channel_start, channel_end, k))
 
 # apply each
-reading_arrs = set_URA(URA_list, seconds=3)
+reading_arrs = set_URAs(URA_list, seconds=3)
 
 # default
 reset_default()
@@ -244,7 +315,7 @@ for i, reading_arr in enumerate(reading_arrs):
 	# increase file index so we dont override file
 	file_index += 1
 
-# on: 100*3 = 300seconds
+# on: 10*3 = 30seconds
 # every second: 1*3 = 3seconds
 # every k: 25*3 = 75seconds
-# total: 378seconds = 6m18s
+# total: 108s = 1m48s
