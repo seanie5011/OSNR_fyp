@@ -200,59 +200,128 @@ print(wss.read())
 # default channels
 reset_default()
 
-# CHANNEL SIM, TURNING OFF ONE AT A TIME
+# # CHANNEL SIM, TURNING OFF ONE AT A TIME
 
-# define the range of channels we want to look at
-channel_start = 54
-channel_end = 80
+# # define the range of channels we want to look at
+# channel_start = 54
+# channel_end = 80
 
-# set to basic as this is the starting point
-reset_basic()
-# read this
-reading_arrs = [read(device='Dev1', sample_rate=1e3, acquire_time=2)]
+# # set to basic as this is the starting point
+# reset_basic()
+# # read this
+# reading_arrs = [read(device='Dev1', sample_rate=1e3, acquire_time=2)]
 
-# now turn off even numbers from 54 to (and including) 80
-URA_list = [URA_BASIC]
-for i in range(channel_start, channel_end + 1, 2):
-	# reset each time
-	reset_basic()
+# # now turn off even numbers from 54 to (and including) 80
+# URA_list = [URA_BASIC]
+# for i in range(channel_start, channel_end + 1, 2):
+# 	# reset each time
+# 	reset_basic()
 
-	# new URA is turning off only channel i
-	new_URA = change_one_channel(i, 99.9)
+# 	# new URA is turning off only channel i
+# 	new_URA = change_one_channel(i, 99.9)
 
-	# save command as a comment by combining with basic
-	URA_list.append(URA_BASIC + '\n' + new_URA)
+# 	# save command as a comment by combining with basic
+# 	URA_list.append(URA_BASIC + '\n' + new_URA)
 
-	# apply this command and add to list
-	reading_arrs.append(set_URA(new_URA))
+# 	# apply this command and add to list
+# 	reading_arrs.append(set_URA(new_URA))
 
-# default
-reset_default()
+# # default
+# reset_default()
 
-# save each to a text file, along with the command used
-file_index = 0
-for i, reading_arr in enumerate(reading_arrs):
-	# save to text file, where column 1 is all the times, and column 2 is all the data points
-	# the header is the URA command used
-	np.savetxt(f'Data/channel_sim_off_onebyone/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+# # save each to a text file, along with the command used
+# file_index = 0
+# for i, reading_arr in enumerate(reading_arrs):
+# 	# save to text file, where column 1 is all the times, and column 2 is all the data points
+# 	# the header is the URA command used
+# 	np.savetxt(f'Data/channel_sim_off_onebyone/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
 
-	# increase file index so we dont override file
-	file_index += 1
+# 	# increase file index so we dont override file
+# 	file_index += 1
 
-# TURN ON ALL CHANNELS
+# # TURN ON ALL CHANNELS
 
-# define the range of channels we want to look at
-channel_start = 52
-channel_end = 87
+# # define the range of channels we want to look at
+# channel_start = 52
+# channel_end = 87
 
-# whether to use all on or off channels
-new_URA = toggle_all(True, channel_start, channel_end)
+# # whether to use all on or off channels
+# new_URA = toggle_all(True, channel_start, channel_end)
 
-# creates a list of this command but repeated
+# # creates a list of this command but repeated
+# URA_list = []
+# for i in range(0, 10):
+# 	# add to URA list
+# 	URA_list.append(new_URA)
+
+# # apply each
+# reading_arrs = set_URAs(URA_list, seconds=3)
+
+# # default
+# reset_default()
+
+# # save each to a text file, along with the command used
+# file_index = 0
+# for i, reading_arr in enumerate(reading_arrs):
+# 	# save to text file, where column 1 is all the times, and column 2 is all the data points
+# 	# the header is the URA command used
+# 	np.savetxt(f'Data/on_channels/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+
+# 	# increase file index so we dont override file
+# 	file_index += 1
+
+# # EVERY SECOND CHANNEL (channel simulation)
+
+# # set basic
+# reset_basic()
+
+# # have to sleep to allow settle
+# time.sleep(3)
+
+# # get the reading for this
+# reading_arr = read(device='Dev1', sample_rate=1e3, acquire_time=2)
+
+# # save to text file, where column 1 is all the times, and column 2 is all the data points
+# # the header is the URA command used
+# np.savetxt(f'Data/channel_simulation.txt', reading_arr, delimiter=',', header=URA_BASIC)
+
+# # default
+# reset_default()
+
+# # EVERY K CHANNEL
+
+# # define the range of channels we want to look at
+# channel_start = 52
+# channel_end = 79
+
+# # keeping 52, 80, and 81-87 on
+# URA_list = []
+# for k in range(2, channel_end - channel_start):
+# 	URA_list.append(turn_on_every_k(channel_start, channel_end, k))
+
+# # apply each
+# reading_arrs = set_URAs(URA_list, seconds=3)
+
+# # default
+# reset_default()
+
+# # save each to a text file, along with the command used
+# file_index = 0
+# for i, reading_arr in enumerate(reading_arrs):
+# 	# save to text file, where column 1 is all the times, and column 2 is all the data points
+# 	# the header is the URA command used
+# 	np.savetxt(f'Data/every_k/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+
+# 	# increase file index so we dont override file
+# 	file_index += 1
+
+# CHANNEL SIM ONLY BASIC AND ONE CHANNEL OFF, 100 TIMES
+
+# creates a list of basic command but repeated
 URA_list = []
-for i in range(0, 10):
+for i in range(0, 200):
 	# add to URA list
-	URA_list.append(new_URA)
+	URA_list.append(URA_BASIC)
 
 # apply each
 reading_arrs = set_URAs(URA_list, seconds=3)
@@ -265,39 +334,16 @@ file_index = 0
 for i, reading_arr in enumerate(reading_arrs):
 	# save to text file, where column 1 is all the times, and column 2 is all the data points
 	# the header is the URA command used
-	np.savetxt(f'Data/on_channels/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+	np.savetxt(f'Data/channel_sim/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
 
 	# increase file index so we dont override file
 	file_index += 1
 
-# EVERY SECOND CHANNEL (channel simulation)
-
-# set basic
-reset_basic()
-
-# have to sleep to allow settle
-time.sleep(3)
-
-# get the reading for this
-reading_arr = read(device='Dev1', sample_rate=1e3, acquire_time=2)
-
-# save to text file, where column 1 is all the times, and column 2 is all the data points
-# the header is the URA command used
-np.savetxt(f'Data/channel_simulation.txt', reading_arr, delimiter=',', header=URA_BASIC)
-
-# default
-reset_default()
-
-# EVERY K CHANNEL
-
-# define the range of channels we want to look at
-channel_start = 52
-channel_end = 79
-
-# keeping 52, 80, and 81-87 on
+# creates a list of the basic command with one channel off but repeated
 URA_list = []
-for k in range(2, channel_end - channel_start):
-	URA_list.append(turn_on_every_k(channel_start, channel_end, k))
+for i in range(0, 200):
+	# add to URA list
+	URA_list.append('URA 52,3,0.0;53,3,99.9;54,3,99.9;55,3,99.9;56,3,0.0;57,3,99.9;58,3,0.0;59,3,99.9;60,3,0.0;61,3,99.9;62,3,0.0;63,3,99.9;64,3,0.0;65,3,99.9;66,3,0.0;67,3,99.9;68,3,0.0;69,3,99.9;70,3,0.0;71,3,99.9;72,3,0.0;73,3,99.9;74,3,0.0;75,3,99.9;76,3,0.0;77,3,99.9;78,3,0.0;79,3,99.9;80,3,0.0;81,3,0.0;82,3,0.0;83,3,0.0;84,3,0.0;85,3,0.0;86,3,0.0;87,3,0.0')
 
 # apply each
 reading_arrs = set_URAs(URA_list, seconds=3)
@@ -310,7 +356,7 @@ file_index = 0
 for i, reading_arr in enumerate(reading_arrs):
 	# save to text file, where column 1 is all the times, and column 2 is all the data points
 	# the header is the URA command used
-	np.savetxt(f'Data/every_k/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+	np.savetxt(f'Data/channel_sim_54off/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
 
 	# increase file index so we dont override file
 	file_index += 1
