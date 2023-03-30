@@ -315,29 +315,29 @@ reset_default()
 # 	# increase file index so we dont override file
 # 	file_index += 1
 
-# CHANNEL SIM ONLY BASIC AND ONE CHANNEL OFF, 100 TIMES
+# # CHANNEL SIM ONLY BASIC AND ONE CHANNEL OFF, 100 TIMES
 
-# creates a list of basic command but repeated
-URA_list = []
-for i in range(0, 200):
-	# add to URA list
-	URA_list.append(URA_BASIC)
+# # creates a list of basic command but repeated
+# URA_list = []
+# for i in range(0, 200):
+# 	# add to URA list
+# 	URA_list.append(URA_BASIC)
 
-# apply each
-reading_arrs = set_URAs(URA_list, seconds=3)
+# # apply each
+# reading_arrs = set_URAs(URA_list, seconds=3)
 
-# default
-reset_default()
+# # default
+# reset_default()
 
-# save each to a text file, along with the command used
-file_index = 0
-for i, reading_arr in enumerate(reading_arrs):
-	# save to text file, where column 1 is all the times, and column 2 is all the data points
-	# the header is the URA command used
-	np.savetxt(f'Data/channel_sim/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
+# # save each to a text file, along with the command used
+# file_index = 0
+# for i, reading_arr in enumerate(reading_arrs):
+# 	# save to text file, where column 1 is all the times, and column 2 is all the data points
+# 	# the header is the URA command used
+# 	np.savetxt(f'Data/channel_sim_54off/reading_{file_index:03}.txt', reading_arr, delimiter=',', header=URA_list[i])
 
-	# increase file index so we dont override file
-	file_index += 1
+# 	# increase file index so we dont override file
+# 	file_index += 1
 
 # creates a list of the basic command with one channel off but repeated
 URA_list = []
@@ -361,7 +361,4 @@ for i, reading_arr in enumerate(reading_arrs):
 	# increase file index so we dont override file
 	file_index += 1
 
-# on: 10*3 = 30seconds
-# every second: 1*3 = 3seconds
-# every k: 25*3 = 75seconds
-# total: 108s = 1m48s
+# 200 * 3 = 600s
