@@ -5,7 +5,7 @@ rm = pyvisa.ResourceManager('@py')
 
 # open wss
 # MUST SET CORRECT PORT NAME
-wss_name = 'ASRL4::INSTR'  #'ASRL/dev/ttyUSB0::INSTR'
+wss_name = 'ASRL5::INSTR'  #'ASRL/dev/ttyUSB0::INSTR'
 wss = rm.open_resource(wss_name)
 
 # settings
